@@ -1,0 +1,5 @@
+tk
+scikit-learn
+joblib
+opencv-contrib-python
+numpy
