@@ -16,6 +16,7 @@ OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("./assets/frame0")
 IMG_SIZE_FOR_GUI = 300
 IMG_SIZE_FOR_ML = 220
+IMG_SIZE_FOR_DL = 240
 
 
 def relative_to_assets(path: str) -> Path:
@@ -23,14 +24,15 @@ def relative_to_assets(path: str) -> Path:
 
 
 class GUI:
-    def __init__(self, model) -> None:
+    def __init__(self, model_ml, model_dl) -> None:
         self.canvas = None
         self.original_image = None
         self.processed_image = None
         self.original_image_gui = None
         self.processed_image_gui = None
         self.classification_result = None
-        self.model = model
+        self.model_ml = model_ml
+        self.model_dl = model_dl
 
     def open_file(self):
         file_path = askopenfilename(
@@ -50,7 +52,7 @@ class GUI:
             if self.original_image is not None:
                 image = cv2.imread("./output/original.png")
                 image, classifications = segment_and_predict(
-                    image, IMG_SIZE_FOR_ML, self.model
+                    image, IMG_SIZE_FOR_ML, self.model_ml, is_ml=True, is_dl=False
                 )
                 image = cv2.resize(image, (IMG_SIZE_FOR_GUI, IMG_SIZE_FOR_GUI))
                 cv2.imwrite("output/processed.png", image)
@@ -62,10 +64,24 @@ class GUI:
                     self.classification_result, text="\n".join(classifications)
                 )
         else:
-            pass
+            # if is_dl = True
+            if self.original_image is not None:
+                image = cv2.imread("./output/original.png")
+                image, classifications = segment_and_predict(
+                    image, IMG_SIZE_FOR_DL, self.model_dl, is_ml=False, is_dl=True
+                )
+                image = cv2.resize(image, (IMG_SIZE_FOR_GUI, IMG_SIZE_FOR_GUI))
+                cv2.imwrite("output/processed.png", image)
+                self.processed_image = PhotoImage(file="./output/processed.png")
+                self.canvas.itemconfig(
+                    self.processed_image_gui, image=self.processed_image
+                )
+                self.canvas.itemconfig(
+                    self.classification_result, text="\n".join(classifications)
+                )
 
     def show_gui(self):
-        window = Tk()
+        window = Tk(screenName="Citra Vehicle Classification")
 
         window.geometry("1202x638")
         window.configure(bg="#FFFFFF")
@@ -114,7 +130,7 @@ class GUI:
             image=button_image_3,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("button_3 clicked"),
+            command=lambda: self.process(ml=False, dl=True),
             relief="flat",
         )
         button_3.place(
@@ -129,15 +145,6 @@ class GUI:
         image_image_4 = PhotoImage(file=relative_to_assets("image_4.png"))
         self.processed_image_gui = self.canvas.create_image(
             946.0, 338.0, image=image_image_4
-        )
-
-        self.canvas.create_text(
-            16.0,
-            138.0,
-            anchor="nw",
-            text="File : ",
-            fill="#000000",
-            font=("Inter", 18 * -1),
         )
 
         self.canvas.create_text(

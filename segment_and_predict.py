@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
-from ml_classification import svm_classification
+from classification import svm_classification, cnn_classification
 
 
-def segment_and_predict(image, size, model):
+def segment_and_predict(image, size, model, is_ml=True, is_dl=False):
     image = cv2.resize(image, (size, size))
     gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -30,7 +30,10 @@ def segment_and_predict(image, size, model):
         object_image = cv2.bitwise_and(image, image, mask=object_mask)
 
         # predict image
-        probability, prediction = svm_classification(object_image, model)
+        if is_ml:
+            probability, prediction = svm_classification(object_image, model)
+        else:
+            probability, prediction = cnn_classification(object_image, model)
 
         classifications.append(prediction)
 
