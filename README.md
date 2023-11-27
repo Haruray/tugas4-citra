@@ -1,5 +1,5 @@
-# Tugas 4 IF4073 : Klasifikasi Kendaraan
-Oleh : 
+# Tugas 4 IF4073: Sistem Pengenalan Kendaraan
+Dibuat oleh: 
 - 13519145 Safiq Faray
 - 13520123 Johannes Winson Sukiatmodjo
 - 13520130 Nelsen Putra
@@ -18,4 +18,4 @@ Oleh :
 - Jalankan `pip install -r requirements.txt`
 - Jalankan file `main.py` (py main.py)
 
-Program telah di tes pada Python 3.10
+Program telah dites dan berhasil dijalankan pada Python 3.10
