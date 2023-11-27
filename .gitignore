@@ -1,3 +1,5 @@
-model/*
+model/*.keras
+model/*.h5
+model/*.sav
 archive/*
 __pycache__/*
