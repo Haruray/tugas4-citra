@@ -35,9 +35,7 @@ class GUI:
     def open_file(self):
         file_path = askopenfilename(
             filetypes=[
-                ("JPEG Files", "*jpeg"),
-                ("PNG Files", "*.png"),
-                ("JPG Files", "*.jpg"),
+                ("Image files", "*.jpeg .jpg .png .bmp"),
             ],
         )
         if file_path is not None:
