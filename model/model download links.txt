@@ -1,1 +1,2 @@
-SVM : 
+SVM : https://drive.google.com/file/d/1iWMyw_VDF-umnZYAgLlTMNeipyFrL3hI/view?usp=sharing
+CNN : https://drive.google.com/file/d/1ysSTmBjAj2kCfHdX9k8RtCh1CoAGbGxr/view?usp=sharing
