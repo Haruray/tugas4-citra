@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
+from ml_classification import svm_classification
 
 
-def segmentation(image, size):
+def segment_and_predict(image, size, model):
     image = cv2.resize(image, (size, size))
     gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -19,9 +20,7 @@ def segmentation(image, size):
     filtered_contours = [
         cnt for cnt in contours if cv2.contourArea(cnt) > min_contour_area
     ]
-
-    detected_objects = []
-
+    classifications = []
     # Create a mask for each object and extract it
     for i, cnt in enumerate(filtered_contours):
         object_mask = np.zeros_like(gray_img)
@@ -29,5 +28,22 @@ def segmentation(image, size):
 
         # Apply the mask to the original image
         object_image = cv2.bitwise_and(image, image, mask=object_mask)
-        
-        
+
+        # predict image
+        probability, prediction = svm_classification(object_image, model)
+
+        classifications.append(prediction)
+
+        x, y, w, h = cv2.boundingRect(cnt)
+        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.putText(
+            img=image,
+            text=f"{prediction} {probability:.2f}",
+            org=(x, y - 10),
+            fontFace=cv2.FONT_HERSHEY_COMPLEX_SMALL,
+            fontScale=0.5,
+            color=(0, 0, 255),
+            thickness=1,
+            lineType=cv2.LINE_4,
+        )
+    return image, classifications

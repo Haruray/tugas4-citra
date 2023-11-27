@@ -3,6 +3,7 @@
 
 
 from pathlib import Path
+from segment_and_predict import segment_and_predict
 import cv2
 
 # from tkinter import *
@@ -13,7 +14,8 @@ from tkinter.filedialog import askopenfilename
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path("./assets/frame0")
-IMG_SIZE = 300
+IMG_SIZE_FOR_GUI = 300
+IMG_SIZE_FOR_ML = 220
 
 
 def relative_to_assets(path: str) -> Path:
@@ -21,12 +23,14 @@ def relative_to_assets(path: str) -> Path:
 
 
 class GUI:
-    def __init__(self) -> None:
+    def __init__(self, model) -> None:
         self.canvas = None
         self.original_image = None
         self.processed_image = None
         self.original_image_gui = None
         self.processed_image_gui = None
+        self.classification_result = None
+        self.model = model
 
     def open_file(self):
         file_path = askopenfilename(
@@ -38,10 +42,24 @@ class GUI:
         )
         if file_path is not None:
             image = cv2.imread(file_path)
-            image = cv2.resize(image, (IMG_SIZE, IMG_SIZE))
+            image = cv2.resize(image, (IMG_SIZE_FOR_GUI, IMG_SIZE_FOR_GUI))
             cv2.imwrite("output/original.png", image)
             self.original_image = PhotoImage(file="./output/original.png")
             self.canvas.itemconfig(self.original_image_gui, image=self.original_image)
+
+    def process(self):
+        if self.original_image is not None:
+            image = cv2.imread("./output/original.png")
+            image, classifications = segment_and_predict(
+                image, IMG_SIZE_FOR_ML, self.model
+            )
+            image = cv2.resize(image, (IMG_SIZE_FOR_GUI, IMG_SIZE_FOR_GUI))
+            cv2.imwrite("output/processed.png", image)
+            self.processed_image = PhotoImage(file="./output/processed.png")
+            self.canvas.itemconfig(self.processed_image_gui, image=self.processed_image)
+            self.canvas.itemconfig(
+                self.classification_result, text="\n".join(classifications)
+            )
 
     def show_gui(self):
         window = Tk()
@@ -83,7 +101,7 @@ class GUI:
             image=button_image_2,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("button_2 clicked"),
+            command=lambda: self.process(),
             relief="flat",
         )
         button_2.place(x=63.0, y=416.0, width=158.0, height=33.263153076171875)
@@ -135,6 +153,14 @@ class GUI:
             text="Result",
             fill="#000000",
             font=("Inter Bold", 23 * -1),
+        )
+        self.classification_result = self.canvas.create_text(
+            910.0,
+            510.0,
+            anchor="nw",
+            text="",
+            fill="#000000",
+            font=("Inter Bold", 20 * -1),
         )
         window.resizable(False, False)
         window.mainloop()
