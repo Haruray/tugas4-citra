@@ -45,19 +45,24 @@ class GUI:
             self.original_image = PhotoImage(file="./output/original.png")
             self.canvas.itemconfig(self.original_image_gui, image=self.original_image)
 
-    def process(self):
-        if self.original_image is not None:
-            image = cv2.imread("./output/original.png")
-            image, classifications = segment_and_predict(
-                image, IMG_SIZE_FOR_ML, self.model
-            )
-            image = cv2.resize(image, (IMG_SIZE_FOR_GUI, IMG_SIZE_FOR_GUI))
-            cv2.imwrite("output/processed.png", image)
-            self.processed_image = PhotoImage(file="./output/processed.png")
-            self.canvas.itemconfig(self.processed_image_gui, image=self.processed_image)
-            self.canvas.itemconfig(
-                self.classification_result, text="\n".join(classifications)
-            )
+    def process(self, ml, dl):
+        if ml:
+            if self.original_image is not None:
+                image = cv2.imread("./output/original.png")
+                image, classifications = segment_and_predict(
+                    image, IMG_SIZE_FOR_ML, self.model
+                )
+                image = cv2.resize(image, (IMG_SIZE_FOR_GUI, IMG_SIZE_FOR_GUI))
+                cv2.imwrite("output/processed.png", image)
+                self.processed_image = PhotoImage(file="./output/processed.png")
+                self.canvas.itemconfig(
+                    self.processed_image_gui, image=self.processed_image
+                )
+                self.canvas.itemconfig(
+                    self.classification_result, text="\n".join(classifications)
+                )
+        else:
+            pass
 
     def show_gui(self):
         window = Tk()
@@ -99,7 +104,7 @@ class GUI:
             image=button_image_2,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: self.process(),
+            command=lambda: self.process(ml=True, dl=False),
             relief="flat",
         )
         button_2.place(x=63.0, y=416.0, width=158.0, height=33.263153076171875)
